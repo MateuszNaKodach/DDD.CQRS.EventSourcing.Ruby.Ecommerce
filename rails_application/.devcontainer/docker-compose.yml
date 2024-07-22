@@ -19,15 +19,13 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
-    image: postgres:latest
+    image: postgres:11
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./create-db-user.sql:/docker-entrypoint-initdb.d/create-db-user.sql
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cqrs-es-sample-with-res
+      POSTGRES_PASSWORD: secret
       # Your config/database.yml should use the user and password you set here,
       # and host "db" (as that's the name of this service). You can use whatever
       # database name you want. Use `bin/rails db:prepare` to create the database.
@@ -44,5 +42,14 @@ services:
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+
 volumes:
   postgres-data:
+  gems:

@@ -62,12 +62,12 @@ module HeroesOnEcommerce
 
       def assert_creature_recruited(recruitment_id, dwelling_id, creature_id, quantity)
         stream_name = "Ordering::Order$#{recruitment_id}"
-        assert_events_contain(
+        assert_stream_contain(
           stream_name,
           Ordering::OrderSubmitted.new(
             data: {
               order_id: recruitment_id,
-              product_id: creature_id,
+              order_lines: { creature_id => quantity },
               order_number: "2019/01/60"
             }
           )
@@ -78,14 +78,11 @@ module HeroesOnEcommerce
         Rails.configuration.event_store
       end
 
-      def assert_events_contain(stream_name, *expected_events)
-        scope = event_store.read.stream(stream_name)
-        before = scope.last
-        actual_events =
-          before.nil? ? scope.to_a : scope.from(before.event_id).to_a
+      def assert_stream_contain(stream_name, *expected_events)
+        stream_events = event_store.read.stream(stream_name).to_a
         to_compare = ->(ev) { { type: ev.event_type, data: ev.data } }
         expected_events.map(&to_compare).each do |expected|
-          assert_includes(actual_events.map(&to_compare), expected)
+          assert_includes(stream_events.map(&to_compare), expected)
         end
       end
 

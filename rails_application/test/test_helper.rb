@@ -33,6 +33,7 @@ class InMemoryTestCase < ActiveSupport::TestCase
 end
 
 class RealRESIntegrationTestCase < ActionDispatch::IntegrationTest
+  self.use_transactional_tests = false
 
   def run_command(command)
     Rails.configuration.command_bus.call(command)
